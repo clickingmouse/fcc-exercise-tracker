@@ -74,18 +74,21 @@ console.log('logging exercise')
   username : data.username,
   description: req.body.description,
   duration: req.body.duration,
-  date: req.body.date ? new Date(req.body.date): Date.now(),
+  date: req.body.date ? new Date(req.body.date).toDateString() : Date.now(),
+  //  date: new Date(req.body.date).toDateString(),
   userId : data._id
   })
   
   console.log('...saving...')
+  //console.log(newExerciseLog.date.toDateString())
   console.log(newExerciseLog)
   
   newExerciseLog.save(function(err,data){
   
   if(err){next(err)}
   console.log('saved success')
-    //data.date=data.date.toDateString()
+    data=data.toObject()
+    data.date=new Date(data.date).toDateString()
     console.log(data)
   res.json(data)
   
@@ -103,8 +106,8 @@ console.log('log history request: query is :')
   console.log(req.query)
 
   var logUserId=req.query.userId
-  var logFromDate=req.query.from
-  var logToDate=req.query.to
+  var logFromDate=new Date(req.query.from)
+  var logToDate=new Date(req.query.to)
   
   apiUsers.findById(logUserId, function(err, data) {
   
@@ -121,14 +124,28 @@ console.log('log history request: query is :')
   //return next(null, data)
   
     
-  var exerciseLog=Exercises.find({userId:data._id}, function(err,data){
-  if (err) return next(err)
+  var exerciseLog=Exercises.find({
+    userId:data._id,
+     date: {
+       $lte: logToDate != 'Invalid Date' ? logToDate.getTime() : Date.now() ,
+       $gte: logFromDate != 'Invalid Date' ? logFromDate.getTime() : 0
+        }
+  //}, 
+  //    function(err,data){
+  //if (err) return next(err)
     
-    console.log('execises done:')
-   console.log(data) 
-  res.json(data)
+    //console.log('execises done:')
+   //console.log(data) 
+  //res.json(data)
+  }).sort('-date')
+  .limit(parseInt(req.query.limit))
+  .exec((err, result)=>{
+    if(err) return next(err)
+    
+   console.log(result) 
+    
+  res.json(result)
   })
-    
     
     
     
