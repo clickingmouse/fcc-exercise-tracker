@@ -95,7 +95,50 @@ console.log('logging exercise')
 }) // router.post
 
 
-/////////////////////////////////////////
+/////////////////////////////////////////////////
+// get user exercise log
+
+router.get('/log', function(req,res,next){
+console.log('log history request: query is :')
+  console.log(req.query)
+
+  var logUserId=req.query.userId
+  var logFromDate=req.query.from
+  var logToDate=req.query.to
+  
+  apiUsers.findById(logUserId, function(err, data) {
+  
+  if (err) {
+    console.log(err)
+    return next(err) }
+  if (!data){
+    console.log('find userId not exist in log')
+    return next({status:400, message: 'unknown userId'}) 
+  } //if.err 
+  //console.log('_id is')
+    console.log(data)
+  console.log('found user : '+ data.username+' ...getting exercises')
+  //return next(null, data)
+  
+    
+  var exerciseLog=Exercises.find({userId:data._id}, function(err,data){
+  if (err) return next(err)
+    
+    console.log('execises done:')
+   console.log(data) 
+  res.json(data)
+  })
+    
+    
+    
+    
+    
+    
+    
+ }) //original findOne
+
+  
+})//router.get.log
 
 
 
