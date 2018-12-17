@@ -142,9 +142,13 @@ console.log('log history request: query is :')
   .exec((err, result)=>{
     if(err) return next(err)
     
+   var userObjResult = {}
+   userObjResult.count=result.length
+   userObjResult.log = result
+    
    console.log(result) 
     
-  res.json(result)
+  res.json(userObjResult)
   })
     
     
